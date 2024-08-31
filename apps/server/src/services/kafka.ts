@@ -3,14 +3,18 @@ import fs from 'fs'
 import path from "path";
 import prismaClient from "./prisma";
 
+const username: string = process.env.KAFKA_USERNAME!;
+const password: string = process.env.KAFKA_PASSWORD!;
+const broker: string = process.env.KAFKA_BROKER!;
+
 const kafka = new Kafka({
-    brokers: ["kafka-109faae8-khushidangre025-c1cf.i.aivencloud.com:28080"],
+    brokers: [broker],
     ssl: {
         ca: [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")],
     },
     sasl: {
-        username: "avnadmin",
-        password: "AVNS_ykFuIaxelgbcpezH2Ld",
+        username: username,
+        password: password,
         mechanism: "plain"
     },
     connectionTimeout: 10000,
