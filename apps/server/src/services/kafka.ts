@@ -6,16 +6,19 @@ import prismaClient from "./prisma";
 const username: string = process.env.KAFKA_USERNAME!;
 const password: string = process.env.KAFKA_PASSWORD!;
 const broker: string = process.env.KAFKA_BROKER!;
+// const machanism: string = process.env.KAFKA_MECH!;
+const key = [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")];
+console.log(key)
 
 const kafka = new Kafka({
     brokers: [broker],
     ssl: {
-        ca: [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")],
+        ca: key,
     },
     sasl: {
         username: username,
         password: password,
-        mechanism: "plain"
+        mechanism: 'plain'
     },
     connectionTimeout: 10000,
 })
