@@ -1,6 +1,8 @@
 import http from 'http'
 import SocketService from './services/socket';
 import { startMessageConsumer } from './services/kafka';
+require('dotenv').config();
+
 
 async function init() {
     startMessageConsumer();

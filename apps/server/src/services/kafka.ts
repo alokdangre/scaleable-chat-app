@@ -11,13 +11,13 @@ const key = [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")];
 // console.log(key)
 
 const kafka = new Kafka({
-    brokers: [broker],
+    brokers: ["kafka-109faae8-khushidangre025-c1cf.i.aivencloud.com:28080"],
     ssl: {
         ca: key,
     },
     sasl: {
-        username: username,
-        password: password,
+        username: "avnadmin",
+        password: "AVNS_ykFuIaxelgbcpezH2Ld",
         mechanism: 'plain'
     },
     connectionTimeout: 10000,
