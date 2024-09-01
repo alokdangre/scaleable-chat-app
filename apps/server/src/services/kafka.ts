@@ -8,7 +8,7 @@ const password: string = process.env.KAFKA_PASSWORD!;
 const broker: string = process.env.KAFKA_BROKER!;
 // const machanism: string = process.env.KAFKA_MECH!;
 const key = [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")];
-console.log(key)
+// console.log(key)
 
 const kafka = new Kafka({
     brokers: [broker],
