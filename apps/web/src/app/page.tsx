@@ -17,7 +17,8 @@ export default function Home() {
        {/* <h5 className="text-gray-900 text-sm font-semibold leading-snug pb-1">Shanay cruz</h5> */}
        
          {messages.map((e) => (
-          <div className="w-max grid gap-2 py-2">
+          // eslint-disable-next-line react/jsx-key
+          <div className="w-max grid gap-2 py-2" key={e}>
             <div className="px-3.5 py-2 bg-gray-100 rounded justify-start  items-center gap-3 inline-flex">
             <h5 className="text-gray-900 text-sm font-normal leading-snug">{e}</h5>
           </div>

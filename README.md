@@ -24,58 +24,117 @@ This Turborepo includes the following packages/apps:
 
 Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-### Utilities
+Below is a sample `README.md` file for a WebSocket-based chat application that addresses the scaling issue using Redis and Kafka. This file explains the architecture, setup instructions, and how the system works.
 
-This Turborepo has some additional tools already setup for you:
+---
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## **Scalable Chat Application**
 
-### Build
+### **Overview**
+This is a real-time WebSocket-based chat application designed to scale across multiple servers. It uses Redis for real-time message delivery between users connected to different WebSocket servers and Kafka for reliable message persistence. This architecture ensures that messages are delivered instantly across servers and safely stored in the database without overwhelming it.
 
-To build all apps and packages, run the following command:
+### **Problem**
+In a distributed system where users are connected to different servers, messages sent through WebSockets are not delivered unless both users are connected to the same server. Directly pushing messages to a PostgreSQL database for persistence can overload and crash the database, especially with high traffic.
 
-```
-cd my-turborepo
-pnpm build
-```
+### **Solution**
+To solve this problem:
+- **Redis** is used to facilitate real-time communication between servers. Messages are published to a Redis channel, and all WebSocket servers are subscribed to this channel. This allows messages to be delivered instantly across servers.
+- **Kafka** is used to handle reliable message processing and to persist messages in PostgreSQL without overwhelming the database. Messages are stored in Kafka and then processed asynchronously to be stored in the database.
 
-### Develop
+### **Architecture**
 
-To develop all apps and packages, run the following command:
+1. **WebSocket Servers**: Handle real-time communication with clients.
+2. **Redis**: Acts as a Pub/Sub broker for delivering messages between WebSocket servers.
+3. **Kafka**: Queues and processes messages for eventual persistence in the database.
+4. **PostgreSQL**: Stores the chat messages persistently.
 
-```
-cd my-turborepo
-pnpm dev
-```
+### **Flow**
+1. **Message Sending**: 
+   - User A sends a message to User B.
+   - The message is sent to the WebSocket server User A is connected to.
+2. **Real-Time Delivery**:
+   - The WebSocket server publishes the message to a Redis channel.
+   - All other WebSocket servers (including the one User B is connected to) receive the message and deliver it to the appropriate user.
+3. **Asynchronous Persistence**:
+   - The WebSocket server also pushes the message to Kafka.
+   - Kafka queues the message and slowly pushes it to PostgreSQL to avoid overloading the database.
+4. **Message Retrieval**:
+   - When User B connects, any missed messages can be fetched from Redis if still cached, or from PostgreSQL for historical messages.
 
-### Remote Caching
+### **Technologies Used**
+- **Node.js**: The server environment.
+- **WebSockets**: For real-time communication between clients and servers.
+- **Redis**: As a Pub/Sub mechanism to broadcast messages across servers.
+- **Kafka**: For reliable message queuing and eventual consistency with the database.
+- **PostgreSQL**: For persistent storage of chat messages.
 
-Turborepo can use a technique known as [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+### **Installation**
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup), then enter the following commands:
+To set up the project locally, follow these steps:
 
-```
-cd my-turborepo
-npx turbo login
-```
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/your-username/scalable-chat-app.git
+   cd scalable-chat-app
+   ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+2. **Install Dependencies**:
+   Use Yarn or NPM to install the required packages.
+   ```bash
+   yarn install
+   ```
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+3. **Setup Redis**:
+   Ensure Redis is running locally or on a remote server.
+   - For local Redis, start it with:
+   ```bash
+   redis-server
+   ```
 
-```
-npx turbo link
-```
+4. **Setup Kafka**:
+   Install Kafka locally or connect to a Kafka cluster.
+   - For local Kafka:
+   ```bash
+   ./bin/zookeeper-server-start.sh config/zookeeper.properties
+   ./bin/kafka-server-start.sh config/server.properties
+   ```
 
-## Useful Links
+5. **Set Up Environment Variables**:
+   This is just an example
+   Create a `.env` file and configure your Redis, Kafka, and database settings:
+   ```bash
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
+   KAFKA_BROKER=localhost:9092
+   POSTGRES_URL=postgres://username:password@localhost:5432/chatdb
+   ```
 
-Learn more about the power of Turborepo:
+6. **Run the Application**:
+   Start the WebSocket servers:
+   ```bash
+   yarn dev
+   ```
 
-- [Tasks](https://turbo.build/repo/docs/core-concepts/monorepos/running-tasks)
-- [Caching](https://turbo.build/repo/docs/core-concepts/caching)
-- [Remote Caching](https://turbo.build/repo/docs/core-concepts/remote-caching)
-- [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
-- [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
-- [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+### **Usage**
+
+Once the application is running:
+1. Open two or more browser windows and connect different users to the chat.
+2. Send messages between users. The messages will be delivered in real-time, even if the users are connected to different servers.
+3. Messages will be persisted in PostgreSQL via Kafka for future retrieval.
+
+### **Scaling the Application**
+
+To scale the application:
+- **Horizontal Scaling**: Deploy multiple instances of the WebSocket server across different machines or containers.
+- **Redis Pub/Sub**: Ensure all instances are connected to the same Redis instance to synchronize messages between users across servers.
+- **Kafka**: Ensure Kafka brokers are set up in a way that can handle high traffic and provide reliable message persistence.
+
+### **Contributing**
+If you’d like to contribute to this project, please submit a pull request or raise an issue on GitHub. Contributions for new features, bug fixes, and optimizations are welcome!
+
+### **License**
+This project is licensed under the MIT License.
+
+---
+
+This `README.md` should provide a clear understanding of the architecture, installation, and usage of your scalable WebSocket chat application. It also includes instructions for contributing and licensing.
